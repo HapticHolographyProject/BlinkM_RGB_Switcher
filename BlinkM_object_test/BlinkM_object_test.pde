@@ -27,7 +27,7 @@ byte cmd;
 
 char serInStr[30];  // array that will hold the serial input string
 
-BlinkM node(10);
+BlinkM node[6] = {BlinkM(10), BlinkM(11), BlinkM(12), BlinkM(13), BlinkM(14), BlinkM(15)};
 
 void setup()
 {
@@ -55,24 +55,14 @@ void setup()
 
 void loop()
 {
-  node.change('r',true);
-  node.update();
-  delay(500);
-  node.change('r',false);
-  node.update();
-  delay(500);
-    node.change('g',true);
-  node.update();
-  delay(500);
-  node.change('g',false);
-  node.update();
-  delay(500);
-    node.change('b',true);
-  node.update();
-  delay(500);
-  node.change('b',false);
-  node.update();
-  delay(500);
+  for(int i = 0; i < 6; i++){
+    node[i].change('r',true);
+    node[i].update();
+    delay(500);
+    node[i].change('r',false);
+    node[i].update();
+    delay(500);
+  }
 }
 
 
