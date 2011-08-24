@@ -19,6 +19,7 @@
 
 #include "Wire.h"
 #include "BlinkM_funcs.h"
+#include "BlinkM_object.h"
 
 #define BLINKM_ARDUINO_POWERED 1
 
@@ -27,6 +28,7 @@ byte cmd;
 char serInStr[30];  // array that will hold the serial input string
 
 void help()
+
 {
     Serial.println("\r\nBlinkMMulti!\n"
                    "'r <a>'     -- change address of red to <a>\n"
@@ -46,7 +48,7 @@ void setup()
     else {
         BlinkM_begin();
     }
-
+    
     Serial.begin(19200);
 
     // if you want to change addr automatically
