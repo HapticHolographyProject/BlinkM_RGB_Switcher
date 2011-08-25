@@ -23,13 +23,17 @@
 
 #define BLINKM_ARDUINO_POWERED 1
 
+//Variable to expand and customize sketch
+byte nodeFirst = 10;
+byte nodeCount = 6;
+
 byte cmd;
 
 char serInStr[30];  // array that will hold the serial input string
 
 char prev_r, prev_g, prev_b = 0;
 
-BlinkM node[6] = {BlinkM(10), BlinkM(11), BlinkM(12), BlinkM(13), BlinkM(14), BlinkM(15)};
+BlinkM node[6] = BlinkM();
 
 void help()
 
@@ -46,6 +50,12 @@ void help()
 
 void setup()
 {
+	//Set Address for nodes
+	for(byte i = 0; i < nodeCount; i++){
+		node[i].setAddr(nodeFirst);
+		nodeFirst++;
+	}
+	
     if( BLINKM_ARDUINO_POWERED ) {
         BlinkM_beginWithPower();
     } 
@@ -65,8 +75,12 @@ void setup()
       else if( rc == 1 ) 
       Serial.println("\r\naddr mismatch");
     */
-	
+	BlinkM_setFadeSpeed(0, 50);
 	BlinkM_fadeToRGB(0 , 0, 0, 0);
+	node[0].change('r', 255);
+	node[0].change('g', 255);
+	node[0].change('b', 255);
+	node[0].update();
     help();
     Serial.print("cmd>");
 }
@@ -86,6 +100,10 @@ void loop()
         
     // most commands are of the format "num"
     byte num = (byte) strtol( str, &str, 10 );
+	
+	Serial.print(cmd);
+	Serial.print(' ');
+	Serial.println(num);
         
 
     switch(cmd) {
@@ -95,23 +113,32 @@ void loop()
             case 'r':  // change red
                 Serial.print(" Red Changed to node "); 
                 Serial.println(num,DEC);
-				node[num].change('r', 0xff);
-				node[prev_r].change('r', 0x00);
-				prev_r = num;
+				
+				if(num != prev_r){
+					node[num].change('r', 255);
+					node[prev_r].change('r', 0);
+					prev_r = num;
+				}
                 break;
 			case 'g':  // set green
 	            Serial.print(" Green Changed to node "); 
 	            Serial.println(num,DEC);
-				node[num].change('g', 0xff);
-				node[prev_r].change('g', 0x00);
-				prev_r = num;
+				
+				if(num != prev_g){
+					node[num].change('g', 255);
+					node[prev_g].change('g', 0);
+					prev_g = num;
+				}
 	            break;
 			case 'b':  // set green
 		        Serial.print(" Blue Changed to node "); 
 		        Serial.println(num,DEC);
-				node[num].change('b', 0xff);
-				node[prev_r].change('b', 0x00);
-				prev_r = num;
+				
+				if(num != prev_b){
+					node[num].change('b', 255);
+					node[prev_b].change('b', 0);
+					prev_b = num;
+				}
 		        break;
             case 'f':  // set fade speed
                 Serial.print(" to fadespeed "); 
