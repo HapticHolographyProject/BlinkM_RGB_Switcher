@@ -27,6 +27,10 @@ byte cmd;
 
 char serInStr[30];  // array that will hold the serial input string
 
+char prev_r, prev_g, prev_b = 0;
+
+BlinkM node[6] = {BlinkM(10), BlinkM(11), BlinkM(12), BlinkM(13), BlinkM(14), BlinkM(15)};
+
 void help()
 
 {
@@ -61,7 +65,8 @@ void setup()
       else if( rc == 1 ) 
       Serial.println("\r\naddr mismatch");
     */
-
+	
+	BlinkM_fadeToRGB(0 , 0, 0, 0);
     help();
     Serial.print("cmd>");
 }
@@ -87,10 +92,27 @@ void loop()
             case '?': 
                 help();
                 break;
-            case 'r':  // set hue
+            case 'r':  // change red
                 Serial.print(" Red Changed to node "); 
                 Serial.println(num,DEC);
+				node[num].change('r', 0xff);
+				node[prev_r].change('r', 0x00);
+				prev_r = num;
                 break;
+			case 'g':  // set green
+	            Serial.print(" Green Changed to node "); 
+	            Serial.println(num,DEC);
+				node[num].change('g', 0xff);
+				node[prev_r].change('g', 0x00);
+				prev_r = num;
+	            break;
+			case 'b':  // set green
+		        Serial.print(" Blue Changed to node "); 
+		        Serial.println(num,DEC);
+				node[num].change('b', 0xff);
+				node[prev_r].change('b', 0x00);
+				prev_r = num;
+		        break;
             case 'f':  // set fade speed
                 Serial.print(" to fadespeed "); 
                 Serial.println(num,DEC);
@@ -99,7 +121,9 @@ void loop()
             default: 
                 Serial.println(" unknown cmd");
             } // case
-
+	for(int i = 0; i < 6; i++ ){
+		node[i].update();
+	}
     Serial.print("cmd> ");
 }
 

@@ -23,15 +23,16 @@
 
 class BlinkM {
 public:
-	BlinkM( char val );
-	~BlinkM();
-	void change( char prefix, bool value );
+	BlinkM();
+	void change( char prefix, int value );
+	void poll();
 	void update();
+	void setAddr( int newAddr);
 private:
-	char _red;
-	char _green;
-	char _blue;
-        char _addr;
+	int _red;
+	int _green;
+	int _blue;
+    int _addr;
 };
 
 #endif
