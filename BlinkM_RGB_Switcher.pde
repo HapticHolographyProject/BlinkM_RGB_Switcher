@@ -11,41 +11,58 @@
  *
  * 2011, Myles Borins, AlphaNerdProductions, http://alphanerdproductions.com/
  *
+ * Code built by modifying the source "BlinkMMulti"
+ * by Tod E. Kurt, ThingM, http://thingm.com/
  */
+
 
 
 #include "Wire.h"
 #include "BlinkM_funcs.h"
+#include "BlinkM_object.h"
 
 #define BLINKM_ARDUINO_POWERED 1
+
+//Variable to expand and customize sketch
+byte nodeFirst = 10;
+byte nodeCount = 6;
 
 byte cmd;
 
 char serInStr[30];  // array that will hold the serial input string
 
+char prev_r, prev_g, prev_b = 0;
+
+BlinkM node[6] = BlinkM();
+
 void help()
+
 {
     Serial.println("\r\nBlinkMMulti!\n"
-                   "'A <n>'     -- change address to <n>\n"
-                   "'h <n> <h>' -- set hue on <n> to <h>\n"
-                   "'o <n>'     -- stop script on <n>\n"
-                   "'O <n>'     -- turn off blinkm <n>\n"
-                   "'p <n> <p>' -- play script <p> on <n>\n"
-                   "'f <n> <f>' -- set fadespeed on <n> to <f>\n"
-                   "'t <n> <t>' -- set timeadj on <n> to <t>\n"
+                   "'r <a>'     -- change address of red to <a>\n"
+                   "'g <a>' 	-- change address of green to <a>\n"
+                   "'b <a>'     -- change address of blue to <a>\n"
+                   "'f <n>' 	-- set global fadespeed to <n>\n"
+                   "'?' 		-- repeat this help page\n"
                    "Note: address 0 is broadcast address\n"
                    );
 }
 
 void setup()
 {
+	//Set Address for nodes
+	for(byte i = 0; i < nodeCount; i++){
+		node[i].setAddr(nodeFirst);
+		nodeFirst++;
+	}
+	
     if( BLINKM_ARDUINO_POWERED ) {
         BlinkM_beginWithPower();
     } 
     else {
         BlinkM_begin();
     }
-
+    
     Serial.begin(19200);
 
     // if you want to change addr automatically
@@ -58,7 +75,12 @@ void setup()
       else if( rc == 1 ) 
       Serial.println("\r\naddr mismatch");
     */
-
+	BlinkM_setFadeSpeed(0, 50);
+	BlinkM_fadeToRGB(0 , 0, 0, 0);
+	node[0].change('r', 255);
+	node[0].change('g', 255);
+	node[0].change('b', 255);
+	node[0].update();
     help();
     Serial.print("cmd>");
 }
@@ -72,60 +94,63 @@ void loop()
 
     // yes we did. we can has serialz
     Serial.println(serInStr); // echo back string read
-    char cmd = serInStr[0];  // first char is command
+
+	char cmd = serInStr[0];  // first char is command
     char* str = serInStr+1;  // get me a pointer to the first char
-
-    // most commands are of the format "addr num"
-    byte addr = (byte) strtol( str, &str, 10 );
-    byte num  = (byte) strtol( str, &str, 10 );  // this might contain 0
-
-    Serial.print("addr ");
-    Serial.print(addr,DEC);
+        
+    // most commands are of the format "num"
+    byte num = (byte) strtol( str, &str, 10 );
+	
+	Serial.print(cmd);
+	Serial.print(' ');
+	Serial.println(num);
+        
 
     switch(cmd) {
-    case '?': 
-        help();
-        break;
-    case 'A':  // set Address
-        if( addr>0 && addr<0xff ) {
-            Serial.println(" setting address");
-            BlinkM_setAddress(addr);
-        } else { 
-            Serial.println("bad address");
-        }
-        break;
-    case 'h':  // set hue
-        Serial.print(" to hue "); 
-        Serial.println(num,DEC);
-        BlinkM_fadeToHSB( addr, num, 0xff, 0xff );
-        break;
-    case 'f':  // set fade speed
-        Serial.print(" to fadespeed "); 
-        Serial.println(num,DEC);
-        BlinkM_setFadeSpeed( addr, num );
-        break;
-    case 't':  // set time adj
-        Serial.print(" to time adj "); 
-        Serial.println(num,DEC);
-        BlinkM_setTimeAdj( addr, num );
-        break;
-    case 'o':   // stop script
-        Serial.println(" stopping script");
-        BlinkM_stopScript(addr);
-        break;
-    case 'O':  // off
-      Serial.println(" turning off blinkm");
-      BlinkM_fadeToRGB(addr, 0,0,0);
-      break;
-    case 'p':   // play script
-        Serial.print(" playing script ");
-        Serial.println(num,DEC);
-        BlinkM_playScript( addr, num, 0x00,0x00);
-        break;
-    default: 
-        Serial.println(" unknown cmd");
-    } // case
-
+            case '?': 
+                help();
+                break;
+            case 'r':  // change red
+                Serial.print(" Red Changed to node "); 
+                Serial.println(num,DEC);
+				
+				if(num != prev_r){
+					node[num].change('r', 255);
+					node[prev_r].change('r', 0);
+					prev_r = num;
+				}
+                break;
+			case 'g':  // set green
+	            Serial.print(" Green Changed to node "); 
+	            Serial.println(num,DEC);
+				
+				if(num != prev_g){
+					node[num].change('g', 255);
+					node[prev_g].change('g', 0);
+					prev_g = num;
+				}
+	            break;
+			case 'b':  // set green
+		        Serial.print(" Blue Changed to node "); 
+		        Serial.println(num,DEC);
+				
+				if(num != prev_b){
+					node[num].change('b', 255);
+					node[prev_b].change('b', 0);
+					prev_b = num;
+				}
+		        break;
+            case 'f':  // set fade speed
+                Serial.print(" to fadespeed "); 
+                Serial.println(num,DEC);
+                BlinkM_setFadeSpeed( 0, num );
+                break;
+            default: 
+                Serial.println(" unknown cmd");
+            } // case
+	for(int i = 0; i < 6; i++ ){
+		node[i].update();
+	}
     Serial.print("cmd> ");
 }
 
@@ -145,4 +170,5 @@ uint8_t readSerialString()
     serInStr[i] = 0;  // indicate end of read string
     return i;  // return number of chars read
 }
+
 
