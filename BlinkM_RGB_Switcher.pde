@@ -163,7 +163,7 @@ uint8_t readSerialString()
     }
     delay(10);  // wait a little for serial data
     int i = 0;
-    while (Serial.available()) {
+    while (Serial.available() && i < 30) {
         serInStr[i] = Serial.read();   // FIXME: doesn't check buffer overrun
         i++;
     }
