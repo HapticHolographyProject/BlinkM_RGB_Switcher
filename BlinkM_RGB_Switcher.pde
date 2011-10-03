@@ -52,6 +52,14 @@ void setup()
     }
     
     Serial.begin(57600);
+
+	BlinkM_setFadeSpeed(0, 50);
+	BlinkM_fadeToRGB(0 , 0, 0, 0);
+	node[0].change('r', 255);
+	node[0].change('g', 255);
+	node[0].change('b', 255);
+	node[0].update();	
+	
 }
 
 
