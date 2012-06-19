@@ -7,3 +7,5 @@ The code has now been revised and will expand to support an array as large as 25
 
 The code relies on a library of BlinkM Functions 2007-8, Tod E. Kurt, ThingM
 <br>[*Find More information at the ThingM website*](http://thingm.com/)
+
+This code will not work with Arduino 1.0 or greater... verified working with Arduino 0023

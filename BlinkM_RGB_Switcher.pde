@@ -106,7 +106,7 @@ void loop()
 			}
 			
 			//Draw new node states
-			for(int i = 0; i < 6; i++ ){
+			for(int i = 0; i < nodeCount; i++ ){
 				delay(5);
 				node[i].update();
 			}
